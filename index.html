@@ -1,0 +1,253 @@
+<!DOCTYPE HTMl>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Press the Key</title>
+</head>
+<body bgcolor="black">
+	<center>
+		<font style="color: yellow;font-size: 40px; font-weight: 900;opacity: 0.5;" id="id_num">Letter 1/50</font>
+	</center>
+	<my id=id_my_1></my>
+	<br><br><br>
+	<center>
+		<font style="color: yellow;font-size: 40px; font-weight: 900;opacity: 0.5;" id="id_time">00s</font>
+		<br><br>
+		<font style="color: yellow;font-size: 40px; font-weight: 900;opacity: 0.5;">Mistakes: </font>
+		<font style="color: yellow;font-size: 40px; font-weight: 900;opacity: 0.5;" id="id_mstk">0</font>
+	</center>
+	<script type="text/javascript">
+		
+		window.addEventListener('keydown', (event) => {
+			//console.log(event);
+			var c = "";
+			if (index < mstr.length) {
+				c += mstr[index];
+			}
+			if (c == "") {
+
+			}else if (event.key == c) {
+				cur_r = 0;
+				cur_g = 255;
+				cur_b = 0;
+				cur_t = 1;
+				document.getElementById("id_cell_" + mid).style.backgroundColor = Col(cur_r, cur_g, cur_b, cur_t);
+				index++;
+				UpdateLetters();
+			}else {
+				cur_r = 255;
+				cur_g = 0;
+				cur_b = 0;
+				cur_t = 1;
+				document.getElementById("id_cell_" + mid).style.backgroundColor = Col(cur_r, cur_g, cur_b, cur_t);
+				mistake++;
+				document.getElementById("id_mstk").innerHTML = mistake;
+			}
+		});
+		
+		var num = 15;
+		var mid = parseInt((num / 2) + 1);
+		var step = 0.9 / (num - mid);
+		var fstep = 3;
+		var fsize = 36;
+		var pros = parseInt(screen.width / num);
+		var mstr = "";
+		var ts = "";
+		var len = 50;
+		var index = 0;
+		var mistake = 0;
+		mstr = NewStr();
+
+		var cr = 255;
+		var cg = 255;
+		var cb = 255;
+		var ct = 0.1;
+
+		var cur_r = 255;
+		var cur_g = 255;
+		var cur_b = 255;
+		var cur_t = 0.1;
+
+		var finished = false;
+
+		var time_seconds = 0;
+		var time_minutes = 0;
+		var time_hours = 0;
+		var time_days = 0;
+
+
+
+		GenerateCells();
+		SetTransparency();
+		UpdateLetters();
+
+		setInterval(function () {
+			if (!finished) {
+				UpdateTime();
+			}
+		}, 1000);
+
+		setInterval(function () {
+			if (!finished) {
+				var step_i = 1;
+				var step_f = 0.01;
+
+				if (cur_r < cr) {
+					cur_r += step_i;
+				}else if (cur_r > cr) {
+					cur_r -= step_i;
+				}
+
+				if (cur_g < cg) {
+					cur_g += step_i;
+				}else if (cur_g > cg) {
+					cur_g -= step_i;
+				}
+
+				if (cur_b < cb) {
+					cur_b += step_i;
+				}else if (cur_r > cb) {
+					cur_b -= step_i;
+				}
+
+				if (cur_t < ct) {
+					cur_t += step_f;
+				}else if (cur_t > ct) {
+					cur_t -= step_f;
+				}
+
+				document.getElementById("id_cell_" + mid).style.backgroundColor = Col(cur_r, cur_g, cur_b, cur_t);
+			}else {
+				document.getElementById("id_cell_" + mid).style.backgroundColor = Col(0, 0, 0, 0);
+			}
+		}, 1);
+
+
+		function GenerateCells () {
+			ts = "";
+			ts += "<table style=\"margin-top: 100px;\" border=\"0\"><tr>";
+			for (var i = 0; i < num; i++) {
+				var tstr = "";
+				if (i + 1 == mid) {
+					tstr = "style=\"text-align: center; background-color: " + Col(cur_r, cur_g, cur_b, cur_t) + "\" width=\"" + pros + "px\"";
+				}else {
+					tstr = "style=\"text-align: center;\" width=\"" + pros + "px\"";
+				}
+				ts += "<td id=\"id_cell_" + (i + 1) + "\" " + tstr + "><font id=\"let_" + (i + 1) + "\" style=\"color:white;font-weight:900;font-size:" + fsize + "px\">1</font></td>";
+			}
+			ts += "</tr></table>";
+			document.getElementById("id_my_1").innerHTML = ts;
+		}
+
+		function SetTransparency () {
+			var co = 1.0;
+			for (var i = mid; i <= num; i++) {
+				var cur = document.getElementById("let_" + i).style;
+				cur.opacity = co;
+				cur.fontSize = (fsize - (fstep * (i - mid))) + "px";
+				co -= step;
+			}
+			co = 1.0;
+			for (var i = mid; i > 0; i--) {
+				var cur = document.getElementById("let_" + i).style;
+				cur.opacity = co;
+				cur.fontSize = (fsize - (fstep * (mid - i))) + "px";
+				co -= step;
+			}
+		}
+
+		function Rand () {
+			return parseInt(Math.random() * 100);
+		}
+
+		function NewStr () {
+			var proper = "abcdefghijklmnopqrstuvwxyz";
+			var str = "";
+			for (var i = 0; i < len; i++) {
+				var ti = Rand() % proper.length;
+				str += proper[ti];
+			}
+			return str;
+		}
+
+		function SubStr (a, l, n) {
+			var r = l + n;
+			var b = "";
+			for (var i = l; i < r; i++) {
+				if (i >= 0 && i < a.length) {
+					b += a[i];
+				}else {
+					b += " ";
+				}
+			}
+			return b;
+		}
+
+		function UpdateLetters () {
+			var t = "";
+			t = SubStr(mstr, index - mid + 1, num);
+			for (var i = 1; i <= num; i++) {
+				document.getElementById("let_" + i).innerHTML = t[i - 1];
+			}
+			if (index >= mstr.length) {
+				finished = true;
+				document.getElementById("id_time").innerHTML += "<br>Finish";
+			}
+			var c = 1;
+			c += index;
+			if (c > len) {
+				c = len;
+			}
+			document.getElementById("id_num").innerHTML = "Letter " + c + "/" + len;
+		}
+
+		function Fixed (n) {
+			var tstr = "";
+			tstr += n;
+			if (tstr.length == 1) {
+				tstr = "0" + tstr;
+			}
+			return tstr;
+		}
+
+		function Col (r, g, b, o) {
+			return "rgba(" + r + ", " + g + ", " + b + ", " + o + ")";
+		}
+
+		function UpdateTime () {
+			time_seconds++;
+			time_minutes += parseInt(time_seconds / 60);
+			time_seconds %= 60;
+			time_hours += parseInt(time_minutes / 60);
+			time_minutes %= 60;
+			time_days += parseInt(time_hours / 24);
+			time_hours %= 24;
+
+			var s_days = "";
+			var s_hours = "";
+			var s_minutes = "";
+			var s_seconds = "";
+
+			s_days += time_days + "d";
+			s_hours += Fixed(time_hours) + "h";
+			s_minutes += Fixed(time_minutes) + "m";
+			s_seconds += Fixed(time_seconds) + "s";
+
+			var cur = "";
+
+			if (time_days > 0) {
+				cur = s_days + ":" + s_hours + ":" + s_minutes + ":" + s_seconds;
+			}else if (time_hours > 0) {
+				cur = s_hours + ":" + s_minutes + ":" + s_seconds;
+			}else if (time_minutes > 0) {
+				cur = s_minutes + ":" + s_seconds;
+			}else {
+				cur = s_seconds;
+			}
+
+			document.getElementById("id_time").innerHTML = cur;
+		}
+
+	</script>
+</body>
+</html>
